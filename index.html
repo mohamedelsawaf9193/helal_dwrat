@@ -48,13 +48,23 @@ border:1px solid rgba(255,255,255,0.05);
 
 .header{
 text-align:center;
-margin-bottom:30px;
+margin-bottom:20px;
 }
 
 .header h1{
 margin:0;
 font-weight:700;
 font-size:26px;
+}
+
+.tabs{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+}
+
+.tabs button{
+flex:1;
 }
 
 label{
@@ -78,7 +88,7 @@ resize:none;
 }
 
 button{
-margin-top:15px;
+margin-top:10px;
 width:100%;
 padding:14px;
 border:none;
@@ -96,7 +106,7 @@ transform:scale(1.03);
 }
 
 .result{
-margin-top:25px;
+margin-top:20px;
 background:#0a0a0a;
 padding:20px;
 border-radius:12px;
@@ -118,14 +128,19 @@ line-height:1.7;
 <h1>الناجحين في الدورة</h1>
 </div>
 
+<div class="tabs">
+<button onclick="showTab('pass')">الناجحين</button>
+<button onclick="showTab('wrong')">Copy ID غلط</button>
+</div>
+
 <label>الصق البيانات هنا</label>
 <textarea id="data"></textarea>
 
-<button onclick="generate()">استخراج الناجحين</button>
-
+<button onclick="generate()">استخراج النتائج</button>
 <button id="copyBtn" onclick="copyResult()">نسخ النتيجة</button>
 
-<div class="result" id="result"></div>
+<div id="passTab" class="result"></div>
+<div id="wrongTab" class="result" style="display:none"></div>
 
 </div>
 
@@ -133,20 +148,30 @@ line-height:1.7;
 
 <script>
 
+let currentTab="pass"
+
 function extractID(line){
-let match=line.match(/\d{12,}/)
+let match=line.match(/\d{17,19}/)
 return match ? match[0] : null
 }
 
 function extractScore(line){
-
 let score=line.match(/(\d+)\s*\/\s*20/)
-
 if(score){
 return parseInt(score[1])
 }
-
 return null
+}
+
+function extractNameCode(line){
+
+let parts=line.split(/\t+/)
+
+let name=parts[2] || ""
+let code=parts[3] || ""
+
+return name + " - " + code.toUpperCase()
+
 }
 
 function generate(){
@@ -154,6 +179,7 @@ function generate(){
 let lines=document.getElementById("data").value.split("\n")
 
 let passed=[]
+let wrong=[]
 
 lines.forEach(line=>{
 
@@ -166,22 +192,48 @@ if(score>=15){
 let id=extractID(line)
 
 if(id){
+
 passed.push("<@"+id+">")
+
+}else{
+
+wrong.push(extractNameCode(line))
+
 }
 
 }
 
 })
 
-let output=passed.join("\n\n")
+document.getElementById("passTab").textContent=passed.join("\n\n")
+document.getElementById("wrongTab").textContent=wrong.join("\n")
 
-document.getElementById("result").textContent=output
+}
+
+function showTab(tab){
+
+currentTab=tab
+
+let pass=document.getElementById("passTab")
+let wrong=document.getElementById("wrongTab")
+
+if(tab==="pass"){
+pass.style.display="block"
+wrong.style.display="none"
+}else{
+pass.style.display="none"
+wrong.style.display="block"
+}
 
 }
 
 function copyResult(){
 
-let text=document.getElementById("result").textContent
+let element=currentTab==="pass"
+?document.getElementById("passTab")
+:document.getElementById("wrongTab")
+
+let text=element.textContent
 
 let btn=document.getElementById("copyBtn")
 
