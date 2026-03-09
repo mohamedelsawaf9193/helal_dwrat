@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<title>نتائج الدورة</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:'Cairo',sans-serif;
+background:#111;
+color:white;
+}
+
+.overlay{
+min-height:100vh;
+padding:40px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.container{
+width:100%;
+max-width:900px;
+background:#1a1a1a;
+border-radius:20px;
+padding:35px;
+box-shadow:0 10px 40px rgba(0,0,0,0.9);
+}
+
+.header{
+text-align:center;
+margin-bottom:30px;
+}
+
+.header h1{
+margin:0;
+font-weight:700;
+font-size:26px;
+}
+
+label{
+display:block;
+margin-top:18px;
+margin-bottom:6px;
+font-size:14px;
+}
+
+textarea{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #333;
+background:#141414;
+color:white;
+font-family:'Cairo',sans-serif;
+font-size:14px;
+height:220px;
+resize:none;
+}
+
+button{
+margin-top:15px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,#00c6ff,#0072ff);
+color:white;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
+}
+
+.result{
+margin-top:25px;
+background:#0a0a0a;
+padding:20px;
+border-radius:12px;
+white-space:pre-wrap;
+border:1px solid #333;
+line-height:1.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+
+<div class="container">
+
+<div class="header">
+<h1>الناجحين في الدورة</h1>
+</div>
+
+<label>الصق البيانات هنا</label>
+<textarea id="data"></textarea>
+
+<button onclick="generate()">استخراج الناجحين</button>
+
+<button id="copyBtn" onclick="copyResult()">نسخ النتيجة</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+function extractID(line){
+let match=line.match(/\d{12,}/)
+return match ? match[0] : null
+}
+
+function extractScore(line){
+
+let score=line.match(/(\d+)\s*\/\s*20/)
+
+if(score){
+return parseInt(score[1])
+}
+
+return null
+}
+
+function generate(){
+
+let lines=document.getElementById("data").value.split("\n")
+
+let passed=[]
+
+lines.forEach(line=>{
+
+let score=extractScore(line)
+
+if(score===null) return
+
+if(score>=15){
+
+let id=extractID(line)
+
+if(id){
+passed.push("<@"+id+">")
+}
+
+}
+
+})
+
+let output=passed.join("\n\n")
+
+document.getElementById("result").textContent=output
+
+}
+
+function copyResult(){
+
+let text=document.getElementById("result").textContent
+
+let btn=document.getElementById("copyBtn")
+
+if(!text){
+
+btn.innerText="لا يوجد نتيجة"
+
+setTimeout(()=>{
+btn.innerText="نسخ النتيجة"
+},2000)
+
+return
+}
+
+navigator.clipboard.writeText(text)
+
+btn.innerText="✓ تم النسخ"
+
+setTimeout(()=>{
+btn.innerText="نسخ النتيجة"
+},2000)
+
+}
+
+</script>
+
+</body>
+</html>
