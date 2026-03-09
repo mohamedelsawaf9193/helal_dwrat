@@ -115,7 +115,150 @@ border:1px solid #333;
 line-height:1.7;
 }
 
+</style>
+</head>
 
+<body>
+
+<div class="overlay">
+
+<div class="container">
+
+<div class="header">
+<h1>الناجحين في الدورة</h1>
+</div>
+
+<div class="tabs">
+<button onclick="showTab('pass')">الناجحين</button>
+<button onclick="showTab('wrong')">الكوبي اي دي غير واقعى</button>
+</div>
+
+<label>الصق البيانات هنا</label>
+<textarea id="data"></textarea>
+
+<button onclick="generate()">استخراج النتائج</button>
+<button id="copyBtn" onclick="copyResult()">نسخ النتيجة</button>
+
+<div id="passTab" class="result"></div>
+<div id="wrongTab" class="result" style="display:none"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let currentTab="pass"
+
+function extractID(line){
+let match=line.match(/\d{17,19}/)
+return match ? match[0] : null
+}
+
+function extractScore(line){
+let score=line.match(/(\d+)\s*\/\s*20/)
+if(score){
+return parseInt(score[1])
+}
+return null
+}
+
+function extractNameCode(line){
+
+let parts=line.split(/\t+/)
+
+let name=parts[2] || ""
+let code=parts[3] || ""
+
+return name + " - " + code.toUpperCase()
+
+}
+
+function generate(){
+
+let lines=document.getElementById("data").value.split("\n")
+
+let passed=[]
+let wrong=[]
+
+lines.forEach(line=>{
+
+let score=extractScore(line)
+
+if(score===null) return
+
+if(score>=15){
+
+let id=extractID(line)
+
+if(id){
+
+passed.push("<@"+id+">")
+
+}else{
+
+wrong.push(extractNameCode(line))
+
+}
+
+}
+
+})
+
+document.getElementById("passTab").textContent=passed.join("\n\n")
+document.getElementById("wrongTab").textContent=wrong.join("\n")
+
+}
+
+function showTab(tab){
+
+currentTab=tab
+
+let pass=document.getElementById("passTab")
+let wrong=document.getElementById("wrongTab")
+
+if(tab==="pass"){
+pass.style.display="block"
+wrong.style.display="none"
+}else{
+pass.style.display="none"
+wrong.style.display="block"
+}
+
+}
+
+function copyResult(){
+
+let element=currentTab==="pass"
+?document.getElementById("passTab")
+:document.getElementById("wrongTab")
+
+let text=element.textContent
+
+let btn=document.getElementById("copyBtn")
+
+if(!text){
+
+btn.innerText="لا يوجد نتيجة"
+
+setTimeout(()=>{
+btn.innerText="نسخ النتيجة"
+},2000)
+
+return
+}
+
+navigator.clipboard.writeText(text)
+
+btn.innerText="✓ تم النسخ"
+
+setTimeout(()=>{
+btn.innerText="نسخ النتيجة"
+},2000)
+
+}
+
+</script>
 
 </body>
 </html>
