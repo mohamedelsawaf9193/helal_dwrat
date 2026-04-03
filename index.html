@@ -257,10 +257,21 @@ btn.innerText="نسخ النتيجة"
 },2000)
 
 }
-
+document.addEventListener('keydown', function(e) {
+  if (
+    (e.ctrlKey && e.key.toLowerCase() === 'u') ||
+    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') ||
+    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') ||
+    (e.ctrlKey && e.key.toLowerCase() === 's')
+  ) {
+    e.preventDefault();
+  }
+});
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
 </script>
 
 </body>
 </html>
-
 
